@@ -1,0 +1,397 @@
+\documentclass[a4paper,twoside,onecolumn,openany,article,10pt]{memoir}
+\usepackage{xeCJK}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+%\usepackage{algorithm}
+%\usepackage{algorithmicx}
+%\usepackage{algpseudocode}
+\usepackage{ascmac}
+\usepackage{tikz}
+\usepackage{ulem}
+%\usepackage{stix}
+%\usepackage{bm}
+\defaultfontfeatures{Ligatures=TeX}
+
+\setCJKmainfont[BoldFont=Noto Sans CJK JP Bold]{Noto Serif CJK JP}
+%\setCJKmainfont{Noto Serif CJK JP}
+\setCJKsansfont{Noto Sans CJK JP}
+\setCJKmonofont{Noto Sans Mono CJK JP}
+
+\newtheorem{theorem}{定理}
+\theoremstyle{remark}
+\newtheorem{remark}{\textbf{余談}}
+
+
+%\setmainfont{DejaVu Serif}
+%\setsansfont{URW Gothic}
+%\setmainfont{Noto Serif CJK JP}
+\setmainfont[BoldFont=Noto Sans CJK JP Bold]{Noto Serif CJK JP}
+\setsansfont{Noto Sans CJK JP}
+\setmonofont{Inconsolata}
+
+\usepackage{listings}
+
+%\renewcommand{\algorithmcfname}{アルゴリズム}
+
+
+
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+
+%\setlrmarginsandblock{1.5in}{1in}{*}
+\setlrmarginsandblock{1.2in}{1.2in}{*}
+\setulmarginsandblock{1.2in}{1.5in}{*}
+\setheadfoot{20mm}{15mm}
+
+%\newlength{\linespace}
+%\setlength{\linespace}{\baselineskip}
+%\setlength{\headheight}{\onelineskip}
+%\setlength{\headsep}{\linespace}
+%\addtolength{\headsep}{-\topskip}
+
+%\setlength{\footskip}{\onelineskip}
+%\setlength{\footnotesep}{\onelineskip}
+
+\checkandfixthelayout
+
+\counterwithout{section}{chapter}
+\setsecnumdepth{subsubsection}
+
+
+\title{アルゴリズムとデータ構造\\\vspace{.5em} \Large アルゴリズムとは早く止まる漸化式}
+\date{2019年6月14日}
+\author{森~立平\\ \texttt{mori@c.titech.ac.jp}}
+
+\begin{document}
+\maketitle
+
+
+\noindent
+今日のメッセージ
+\begin{itemize}
+\item \textbf{アルゴリズム $\approx$ 漸化式}
+%\item \textbf{計算時間はオーダーで評価する}
+\item 漸化式は「1」でなくて「0」で止める
+\item 漸化式の中の条件の数は減らす
+\item $y>x$の最大公約数は$O(\log x)$回の剰余の計算で計算できる
+\end{itemize}
+
+\noindent
+今日の目標
+\begin{itemize}
+\item 漸化式からアルゴリズムが設計できることを理解する
+\item ユークリッドの互除法の計算量を理解する
+\end{itemize}
+
+
+\section{アルゴリズムとは}
+アルゴリズムとは簡単な計算を組み合わせて複雑な計算をするための手続きのことである。
+アルゴリズムは数学や物理と比べると体系的に理解することが難しい。
+この講義ではできるだけ普遍的なアルゴリズムの設計法、解析手法、性質について考えていく。
+
+\section{ユークリッドの互除法}
+自然数$x$と$y$の最大公約数(greatest common divisor; GCD) をもとめる問題を考えよう。
+おそらくみんな知っているユークリッドの互除法というアルゴリズムがある。
+ユークリッドの互除法は次の等式に基づく。
+
+\begin{equation}
+\mathrm{gcd}(x, y) =
+\begin{cases}
+x,& \text{if } x = y\\
+\mathrm{gcd}(x, y-x),& \text{if } x < y\\
+\mathrm{gcd}(x-y, y),& \text{otherwise.}
+\end{cases}
+\label{eq:gcd1}
+\end{equation}
+この等式が正しいことは $x\le y$ のとき、$(r\mid x) \land (r\mid y) \iff (r\mid x) \land (r\mid y-x)$から分かる。
+上記の等式は任意の自然数$x$と$y$について$\mathrm{gcd}(x, y)$の値を一意に定める。
+例えば$x=6, y=15$ の場合、$\mathrm{gcd}(6, 15) = \mathrm{gcd}(6, 9) = \mathrm{gcd}(6, 3) = \mathrm{gcd}(3, 3) = 3$ と最大公約数が定まる。
+このように、上記の等式を繰り返し適用(左辺を右辺で置き換える)していくと\textbf{必ず停止する}。
+このような等式のことを「\textbf{漸化式}」と呼ぶことにしよう。
+効率がいいかどうかは別として\textbf{漸化式はそのままアルゴリズムになる}。
+%漸化式を立てると自然とアルゴリズムが設計できる訳である。
+
+次にこのアルゴリズムの実行時間を考えてみよう。
+実行時間の目安となる量として「計算量」という概念がある。
+「計算量」の定義は様々であるが、ここでは「引き算をする回数」を計算量の定義としよう。
+%最後の一回を除いて、漸化式一回の適用につき一回の引き算が実行されるので、漸化式の適用回数を
+式~\eqref{eq:gcd1}に基づくアルゴリズムで $\mathrm{gcd}(n, 1)$ を計算しようとすると $n-1$回引き算を実行する必要がある。
+$x\le y$のときは、$y < x$ になるまで$y$から$x$を引くので、$y-x$を$y\,\%\,x$に置き換えることができる。
+
+\begin{equation}
+\mathrm{gcd}(x, y) =
+\begin{cases}
+y,& \text{if } x \,\%\, y = 0\\
+x,& \text{if } y \,\%\, x = 0\\
+\mathrm{gcd}(x, y\, \%\, x),& \text{if } x< y\\
+\mathrm{gcd}(x\, \%\, y, y),& \text{otherwise.}
+\end{cases}
+\label{eq:gcd2}
+\end{equation}
+この漸化式を使えば、$\mathrm{gcd}(n,1)$は直接1と計算できる。
+このアルゴリズムの計算量を「剰余を計算する回数」と定義すると、\eqref{eq:gcd1}に基づいたアルゴリズムより~\eqref{eq:gcd2}に基づくアルゴリズムの
+方が計算量が小さそうである。
+一般的に$y>x$について$\mathrm{gcd}(x, y)$を計算するには$\log x$ に比例する計算量となることを~\ref{sec:ceuclidean}章で説明する。
+
+\section{漸化式を立てるコツ}
+アルゴリズムの計算量は次章で詳しく評価することにして、もう少しこの漸化式を改善してみよう。
+今まで$x$と$y$を自然数としていたが、0で漸化式を止めることにすると次の漸化式が得られる。
+
+\begin{equation}
+\mathrm{gcd}(x, y) =
+\begin{cases}
+y,& \text{if } x = 0\\
+x,& \text{if } y = 0\\
+\mathrm{gcd}(x, y\, \%\, x),& \text{if } x\le y\\
+\mathrm{gcd}(x\, \%\, y, y),& \text{otherwise.}
+\end{cases}
+\end{equation}
+このようにしても今までと同じ計算結果になることは簡単に確認できる。
+また、$\mathrm{gcd}(x, 0)=x$ というように\textbf{定義域が拡張される}がこれは$x\ge 1$のときは妥当な定義であろう($x$と0の最大公約数は$(r \mid x)\land (r\mid 0)$
+を満たす最大の整数$r$と考えれば、これは$x$である)。
+しかし一方で$\mathrm{gcd}(0, 0)=0$ということになる。これは一見すると不自然な定義にも見える($\mathrm{gcd}(0,0)=\infty$としたいところであろう)。
+これを正当化するには2通り方法がある。1つ目は$x\preceq y \stackrel{\mathrm{def}}{\iff} x\mid y$と半順序を定義した場合に 0 は「最大」の数である。
+また、半順序の公理として$x\preceq x$は任意の$x$について成り立たないといけないので、$0\mid 0$を仮定することになる。
+これは $x \mid y\stackrel{\mathrm{def}}{\iff} \exists z\in \mathbb{Z},\, y = zx$ と考えれば自然であろう。
+そうすれば、$\mathrm{gcd}(0,0)=0$は正当化できる。
+もう一つの正当化の方法として、$\mathrm{gcd}(0,0)=0$とおけば、$(\mathbb{Z}_{\ge 0}, \mathrm{gcd})$は0を単位元とするモノイド(逆元を持つとは限らない群)となることが挙げられる。
+上のように、漸化式の停止条件を1ステップ遅らせることで、\textbf{関数の定義域が自然に拡張}された。
+この拡張された定義域を持つ関数を使ってアルゴリズムを設計すると、漸化式の適用回数が1回増えるが、\textbf{似たような計算を2箇所に書くことを防げる}ことが多い。
+そのため、「漸化式はできるだけ簡単なところで止める」、「\textbf{漸化式は「1」でなくて「0」で止める}」というのは漸化式を立てるコツである。
+また、もう一つのコツとして漸化式の中では\textbf{計算量を大きく増やさない範囲で条件分岐は減らした方がよい}。
+条件分岐を減らすことで最終的に次の漸化式が得られる。
+\begin{equation}
+\mathrm{gcd}(x, y) =
+\begin{cases}
+y,& \text{if } x = 0\\
+\mathrm{gcd}(y\, \%\, x, x),& \text{otherwise.}
+\end{cases}
+\label{eq:gcd4}
+\end{equation}
+この漸化式では$x\le y$を期待しているが、$x>y$の場合は単に引数を入れ替える操作をしている。
+例えば$x=15, y=6$の場合、$\mathrm{gcd}(15, 6) = \mathrm{gcd}(6, 15) = \mathrm{gcd}(3, 6) = \mathrm{gcd}(0, 3) = 3$と計算できる。
+条件分岐を減らしたせいで最初の1回分漸化式の適用と計算量が増えている。しかし、条件分岐を減らすことでアルゴリズム(漸化式)は見通しが良くなり、通常はアルゴリズムの実行時間も短くなる。
+ここまで漸化式を変形してきたが、\eqref{eq:gcd2}から\eqref{eq:gcd4}まではアルゴリズムの実行時間と計算量は大きくは変わらない。
+しかし、「アルゴリズムの簡潔さ」と「アルゴリズムの実行時間の速さ」を両立する\eqref{eq:gcd4}が一番優れていると考えられる。
+このような漸化式を立てられるようになるため、この2つのコツを押さえておく必要がある。
+\begin{itemize}
+\item \textbf{漸化式は「1」でなくて「0」で止める}
+\item \textbf{計算量を大きく増やさない範囲で条件分岐を減らす}
+\end{itemize}
+このユークリッドの互除法は紀元前300年頃の「ユークリッド原論」に書かれており、世界最古のアルゴリズムと考えられている。
+
+\section{ユークリッドの互除法の時間計算量}\label{sec:ceuclidean}
+%ユークリッドの互除法の時間計算量を見積ろう。
+%アルゴリズムの時間計算量は\textbf{入力の長さの関数}として見積る。
+%入力$x$と$y$が二進数表現で与えられるとすると、入力の長さは$n:=\lceil \log(1+ x) \rceil + \lceil \log(1+y)\rceil$である。
+%アルゴリズムの分野では$\log$のように対数の底が省略されている場合は底は2とする。
+%この入力の長さに対して、漸化式の適用回数を見積ろう。
+この章では$\mathrm{gcd}(x,y)$を計算するアルゴリズム~\eqref{eq:gcd4}の計算量を解析する。
+知りたいのは\textbf{与えられた$x$と$y$対する漸化式の適用回数}であるが、以下ではまず
+\textbf{与えられた漸化式の適用回数に対する最小の$x$と$y$}を考える。
+
+非負の整数$x,y$が$x<y$を満たすとき、$r_0:=y$, $r_1:=x$と置き、$r_{i+2} := r_{i}\,\mod\,r_{i+1}$と定義する。$r_m=0$となったところで数列は停止するとする。
+この$m$はユークリッドの互除法の計算量+1に他ならない。
+フィボナッチ数列$F_0,F_1,\dotsc$を
+\begin{align*}
+F_0 &:= 0,& F_1 &:= 1\\
+F_n &:= F_{n-1} + F_{n-2}, \qquad n\ge 2
+\end{align*}
+と定義する。フィボナッチ数列を使って、逆順にした数列$r_m, r_{m-1}, \dotsc, r_0$を下から抑えることができる。
+
+\begin{theorem}
+%非負の整数$x$と$y$は$0\le x< y$を満たし、$x$と$y$に対するユークリッドの互除法\eqref{eq:gcd4}が$n$回の漸化式適用を必要とするものの中で$y$が最小のものとする。
+%このとき、$y=F_{n+1},\, x=F_{n}$である。
+任意の$1\le k \le m$について
+$r_{m-k}\ge F_{k+1}$.
+\end{theorem}
+\begin{proof}
+$k=1,2$の場合は、$r_{m-1}\ge 1 = F_2$, $r_{m-2} \ge 2 = F_3$ より定理は成り立つ。
+数列は$r_{i+1}<r_i$を満たす。
+$r_{i+2} = r_i\,\mod\,r_{i+1} \le r_i - r_{i+1}$より $r_i \ge r_{i+1} + r_{i+2}$が成り立つことから、一般の$k$についても成り立つ。
+\end{proof}
+
+よって、ユークリッドの互除法で計算量が$m-1$回以上であれば、$x\ge F_{m}$となることが分かった。
+対偶をとれば、「\textbf{$x <F_{m}$であればユークリッドの互除法の計算量は$m-2$以下}」であることが分かる。
+黄金比$\phi:=(1+\sqrt{5})/2$に対して、$F_m> \frac1{\sqrt{5}}\phi^m-1$であるので、$1+x \le \frac1{\sqrt{5}}\phi^{m} \Rightarrow x< F_{m}$ である。
+よって計算量は $\lceil\log_\phi[\sqrt{5}(1+x)]\rceil-2$回以下。
+$\log_\phi \sqrt{5} \approx 1.6723$ なので、$\lceil\log_\phi (1+x)\rceil$ で計算量を上から抑えられる。
+よって次の定理を得る。
+\begin{theorem}
+式~\eqref{eq:gcd4}に基づくユークリッドの互除法の計算量(剰余の計算回数)は$\lceil\log_\phi(1+x)\rceil$以下である。
+\end{theorem}
+%入力長$n$については $x > 0$と仮定すると、
+%\begin{equation*}
+%\lceil\log_\phi (1+x)\rceil
+%=
+%\left\lceil\frac{\log (1+x)}{\log \phi}\right\rceil
+%\le
+%\frac{n}{2\log \phi}+1
+%\approx 0.72021\, n + 1
+%\end{equation*}
+%%と$n/\log \phi \approx 1.44042\, n$と漸化式の適用回数を入力長$n$の関数で上から抑えることができる。
+%と漸化式の適用回数を入力長$n$の関数で上から抑えることができる。
+%要は\textbf{入力長に比例した回数しか漸化式を適用する必要はない}。
+引き算で計算する\eqref{eq:gcd1}は計算量は最悪$y-1$であった。
+よって漸化式\eqref{eq:gcd1}より、漸化式\eqref{eq:gcd2}--\eqref{eq:gcd4}の方が効率的なアルゴリズムを与える。
+
+%次に一回の漸化式の適用に必要な計算量を考える。
+%一回の漸化式\eqref{eq:gcd4}の適用には$x$が0かどうかのチェックと$y\,\%\,x$の計算が必要である。
+%前者は$O(n)$、後者は「小学生のアルゴリズム」を使えば$O(n^2)$で計算ができる。
+%よって、全体で$O(n^3)$で最大公約数の計算ができた(ただし、もっと詳細に解析すると全体の計算量は$O(n^2)$であることが分かる)。
+
+\section{オーダー記法}
+アルゴリズムの計算量はオーダー記法$O(\cdot)$を使って表すことが多い。オーダー記法は
+\begin{equation*}
+f(n)=O(g(n)) \iff \mathop{\mathrm{lim\,sup}}_{n\to\infty} \left|\frac{f(n)}{g(n)}\right| < \infty
+\iff \exists C, n_0,\, \forall n\ge n_0\quad |f(n)|\le C|g(n)|
+\end{equation*}
+と定義される。
+例えば
+\begin{align*}
+n &= O(n),&
+100n &= O(n),&
+n &= O(n^2)\\
+\log_{10} n &= O(\log_{2} n),&
+\log_{2} n &= O(\log_{10} n),&
+\log_2 n &= O(n^{0.0001})
+\end{align*}
+が成り立つ。オーダー記法は定数倍を気にしないで漸近的な計算量を知りたい場合に用いられる。
+
+\section{Binary GCD}
+ユークリッドの互除法の変種として Binary GCD というアルゴリズムがある。
+これは Stein によって 1961年に発表された。
+Binary GCD は次の漸化式に基づく。
+
+\begin{equation}
+\mathrm{gcd}(x, y) =
+\begin{cases}
+y,& \text{if } x = 0\\
+x,& \text{if } y = 0\\
+2\,\mathrm{gcd}(x/2, y/2),& \text{if $x$ and $y$ are even}\\
+\mathrm{gcd}(x/2, y),& \text{if $x$ is even and $y$ is odd}\\
+\mathrm{gcd}(x, y/2),& \text{if $x$ is odd and $y$ is even}\\
+\mathrm{gcd}(x, (y-x)/2),& \text{if $x$ and $y$ are odd and $y \ge x$}\\
+\mathrm{gcd}((x-y)/2, y),& \text{otherwise.}
+\end{cases}
+\label{eq:bgcd}
+\end{equation}
+この漸化式が正しいことは簡単に確かめられるだろう。
+条件分岐が多いので、元のユークリッドの互除法よりも悪いように見えるかもしれないが、
+この漸化式には\textbf{剰余(\%)の計算が含まれていない}。
+その代わり引き算と2で割る計算が含まれているが、これらは剰余の計算と比較すると高速に計算ができる(10進数で表されている10の倍数を10で割るのが簡単であるのと同じ)。
+%その代わり引き算と2で割る計算が含まれているが、これらは$O(n)$時間で計算できる。
+%そのため、$x$と$y$が大きいときには、Binary GCD の方が高速になる。
+
+\section{Binary GCDの計算量}
+引き算を計算する回数を binary GCD の計算量と定義しよう。
+2つの整数$x$と$y$のどちらかが偶数のときは最初のステップで引き算が発生しないので、両方とも奇数の場合を考える。
+%最悪で計算量は$m=\lceil\log_2 x\rceil + \lceil\log_2 y\rceil + 1$となることは簡単に分かる。
+%これは$x=2^{m-n-1}, y=2^{n}$のときに達成される。
+\begin{theorem}
+2つの奇数$x$と$y$が$y>x$を満たすとき、binary GCD の計算量は$1+\log_2(y-1)$以下である。
+\end{theorem}
+\begin{proof}
+Binary GCD の計算量が$m$であるとするときの$y$の下界について考える。
+奇数のペアの列$\{(a_n, b_n)\}_{n=0,1,\dotsc,m}$を次のように定義する。
+\begin{align*}
+(a_0, b_0) &= (y, x)\\
+a_{i+1} &= \max\{\phi(a_{i}-b_{i}), b_i\}\\
+b_{i+1} &= \min\{\phi(a_{i}-b_{i}), b_i\}.
+\end{align*}
+ただし、非負の整数$t$について$\phi$は
+\begin{align*}
+\phi(t)=\begin{cases}
+0,&\text{if } t = 0\\
+t,&\text{if $t$ is odd}\\
+\phi(t/2),&\text{otherwise}
+\end{cases}
+\end{align*}
+と定義する。
+この奇数のペアの列が$m$番目で停止するとき、binary GCD の計算量は$m$である。
+すると、$a_{i+1}+b_{i+1} \le (a_i-b_i)/2 + b_i = (a_i+b_i)/2$が成り立つ。
+よって、$a_i+b_i$は単調減少で非負であるため必ず停止する。
+$a_{m-1}+b_{m-1}\ge 2$ と $a_i+b_i\ge 2(a_{i+1}+b_{i+1})$より、$y+x=a_0+b_0\ge 2^{m}$
+が成り立つ。$y$と$x$は奇数であるので$y\ge x+2$が成り立ち、$y-1\ge 2^{m-1}$が得られる。
+よって、$m\le 1+\log_2(y-1)$が得られる。
+\end{proof}
+また、$y=2^{m-1}+1$, $x=2^{m-1}-1$のとき等号は達成される。
+奇数のペアの列は
+$(2^{m-1}+1, 2^{m-1}-1), (2^{m-1}-1, 1), (2^{m-2}-1, 1), \dotsc, (3,1), (1,1), (1,0)$
+となる。
+%Binary GCD の時間計算量の解析は通常のユークリッドの互除法よりも簡単である。
+%まずは漸化式を適用する回数を数えよう。
+%1回の適用で必ず二進数で一桁は減るので、漸化式の適用回数は高々$n$である。
+%%一方で一回の漸化式適用につき、引き算と2で割る計算が必要であるが、これらは$O(n)$時間でできる。
+%また、偶奇のチェックは最下位ビットを見ればいいだけなので$O(1)$時間でできる。
+%よって\textbf{全体の時間計算量は$O(n^2)$}である。
+%ユークリッドの互除法の時間計算量も$O(n^2)$であるが、上手に実装すれば Binary GCD の方が高速になる。
+
+
+\section{C言語による実装}
+ユークリッドの互除法~\eqref{eq:gcd4}をC言語で書くと次のようになる。
+\begin{lstlisting}[basicstyle=\ttfamily\normalsize,showstringspaces=false,language=C,frame=single]
+unsigned int Euclidean_gcd_rec(unsigned int x, unsigned int y){
+  if(x == 0) return y;
+  return Euclidean_gcd_rec(y % x, x);
+}
+\end{lstlisting}
+数式~\eqref{eq:gcd4}をそのままコピーしたようなものだと分かるだろう。
+次にこれを反復を使って書くと次のようになる。
+\begin{lstlisting}[basicstyle=\ttfamily\normalsize,showstringspaces=false,language=C,frame=single]
+unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
+  while(x != 0){
+    int z = x;
+    x = y % x;
+    y = z;
+  }
+  return y;
+}
+\end{lstlisting}
+
+\if0
+\vspace{3em}
+\noindent
+今日の演習課題
+\begin{enumerate}
+\item 上記のプログラムを \texttt{gcd.c} に書き写せ。コンパイルして実行せよ。出力される値はランダムな10000以下の自然数が互いに素になる確率である。これは$\frac6{\pi^2}\approx 0.6079$に近いはずである。
+\item Binary GCD を再帰で実装せよ(通常のユークリッドの互除法よりも遅くなるのでがっかりしないこと)。
+\item {[発展的課題]} Binary GCD を再帰を使わないで反復を使って実装せよ。一般的なC言語のコンパイラ(\texttt{gcc}, \texttt{clang}など)では関数\texttt{\_\_builtin\_ctz(x)}が使用できる。
+これは \texttt{int} 型の \texttt{x}について \texttt{x} の二進数表現の最下位ビットから連続する 0 の個数を返す関数である。
+また、\texttt{>{}>}は(算術)右シフト演算子である。
+例えば、「\texttt{x} を2で割れるだけ割る」のは\texttt{x >{}> \_\_builtin\_ctz(x)} と書ける。
+\end{enumerate}
+\fi
+
+
+\section{おまけ: 連分数展開}
+実数$z$の(正則)連分数展開とは
+\begin{equation*}
+z=a_0 + \cfrac1{a_1+\cfrac1{a_2+\cfrac1{a_3+\cfrac1{a_4+\dotsb}}}}
+\end{equation*}
+という表現のことである。
+ここで$a_0,a_1,a_2\dotsc$は整数とする。
+実数$z$に対してこの連分数展開を得るのは簡単で、次の手続に従って計算すればよい
+\begin{align*}
+a_0 &= \lfloor z\rfloor,&
+x_0 &= z-a_0,\\
+a_{i+1} &= \left\lfloor \frac1{x_i}\right\rfloor,&
+x_{i+1} &= \frac1{x_i} - a_i.
+\end{align*}
+ただし、$x_i=0$となったら停止する。
+非負の整数$x, y$が$x< y$を満たしているときに、 $z=x/y$であるとすると,
+\begin{align*}
+a_0 &= 0,& x_0 &= \frac{x}{y}\\
+a_1 &= \left\lfloor \frac{y}{x} \right\rfloor,&
+x_1 &= \frac{y\,\%\,x}{x}
+\end{align*}
+となる。よって、\ref{sec:ceuclidean}章で定義した$r_0,r_1,r_2,\dotsc,$を用いると、$x_i = \frac{r_{i+1}}{r_i}$である。
+また、$a_i = \lfloor\frac{r_{i-1}}{r_i}\rfloor$であり、これはユークリッドの互除法における「商」である。
+つまり、有理数$x/y$の連分数展開は$\mathrm{gcd}(x, y)$のユークリッドの互除法と対応しており、$a_0=0$で$a_1,a_2,\dotsc$は
+商の列$\lfloor\frac{r_{0}}{r_1}\rfloor,\lfloor\frac{r_{1}}{r_2}\rfloor,\dotsc$となる。
+この連分数展開は実数を有理数で近似したり、有理数をより分母の小さい有理数で近似するのに役に立つ。
+
+\end{document}
