@@ -1,4 +1,4 @@
-\documentclass[a4paper,twoside,onecolumn,openany,article,10pt]{memoir}
+\documentclass[a4paper,oneside,onecolumn,openany,article,10pt]{memoir}
 \usepackage{xeCJK}
 \usepackage{url}
 \usepackage{hyperref}
@@ -42,7 +42,7 @@
 \settrimmedsize{\stockheight}{\stockwidth}{*}
 
 %\setlrmarginsandblock{1.5in}{1in}{*}
-\setlrmarginsandblock{1.2in}{1.2in}{*}
+\setlrmarginsandblock{2.0in}{1.0in}{*}
 \setulmarginsandblock{1.2in}{1.5in}{*}
 \setheadfoot{20mm}{15mm}
 
@@ -62,7 +62,7 @@
 
 
 \title{アルゴリズムとデータ構造\\\vspace{.5em} \Large アルゴリズムとは早く止まる漸化式}
-\date{2019年6月14日}
+\date{2020年6月23日}
 \author{森~立平\\ \texttt{mori@c.titech.ac.jp}}
 
 \begin{document}
@@ -215,7 +215,7 @@ $r_{i+2} = r_i\,\%\,r_{i+1} \le r_i - r_{i+1}$より $r_i \ge r_{i+1} + r_{i+2}$
 
 よって、ユークリッドの互除法で計算量が$m-1$回以上であれば、$x\ge F_{m}$となることが分かった。
 対偶をとれば、「\textbf{$x <F_{m}$であればユークリッドの互除法の計算量は$m-2$以下}」であることが分かる。
-黄金比$\phi:=(1+\sqrt{5})/2$に対して、$F_m> \frac1{\sqrt{5}}\phi^m-1$であるので、$1+x \le \frac1{\sqrt{5}}\phi^{m} \Rightarrow x< F_{m}$ である。
+黄金数$\phi:=(1+\sqrt{5})/2\approx 1.618$に対して、$F_m> \frac1{\sqrt{5}}\phi^m-1$であるので、$x \le \frac1{\sqrt{5}}\phi^{m} -1 \Rightarrow x< F_{m}$ である。
 よって計算量は $\lceil\log_\phi[\sqrt{5}(1+x)]\rceil-2$回以下。
 $\log_\phi \sqrt{5} \approx 1.6723$ なので、$\lceil\log_\phi (1+x)\rceil$ で計算量を上から抑えられる。
 よって次の定理を得る。
@@ -235,7 +235,7 @@ $\log_\phi \sqrt{5} \approx 1.6723$ なので、$\lceil\log_\phi (1+x)\rceil$ �
 %と漸化式の適用回数を入力長$n$の関数で上から抑えることができる。
 %要は\textbf{入力長に比例した回数しか漸化式を適用する必要はない}。
 引き算で計算する\eqref{eq:gcd1}は計算量は最悪$y-1$であった。
-よって漸化式\eqref{eq:gcd1}より、漸化式\eqref{eq:gcd2}--\eqref{eq:gcd4}の方が効率的なアルゴリズムを与える。
+よって漸化式\eqref{eq:gcd1}より、漸化式\eqref{eq:gcd2}--\eqref{eq:gcd4}の方が漸近的に効率的なアルゴリズムを与える。
 
 %次に一回の漸化式の適用に必要な計算量を考える。
 %一回の漸化式\eqref{eq:gcd4}の適用には$x$が0かどうかのチェックと$y\,\%\,x$の計算が必要である。
@@ -374,6 +374,8 @@ unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
 \end{enumerate}
 \fi
 
+
+\section{おまけ: 拡張ユークリッドの互除法}
 
 \section{おまけ: 連分数展開}
 実数$z$の(正則)連分数展開とは
