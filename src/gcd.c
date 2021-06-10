@@ -38,11 +38,25 @@ unsigned int binary_gcd_rec(unsigned int x, unsigned int y)
     return binary_gcd_rec((x - y) / 2, y);
 }
 
-/*
 unsigned int binary_gcd_itr(unsigned int x, unsigned int y)
 {
+  while (x != 0)
+  {
+    if (y == 0)
+      return x;
+    else if (x % 2 == 0 && y % 2 == 0)
+      x %= 2, y %= 2;
+    else if (x % 2 == 0)
+      x %= 2;
+    else if (y % 2 == 0)
+      y %= 2;
+    else if (y >= x)
+      y = (y - x) / 2;
+    else
+      x = (x - y) / 2;
+  }
+  return y;
 }
-*/
 
 int main()
 {
