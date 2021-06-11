@@ -12,10 +12,37 @@ unsigned int Euclidean_gcd_rec(unsigned int x, unsigned int y){
 /*
 unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
 }
+*/
 
 unsigned int binary_gcd_rec(unsigned int x, unsigned int y){
+  if(x == 0) {
+    return y;
+  }
+  else if(y == 0) {
+    return x;
+  }
+  else if(x % 2 == 0) {
+    if(y % 2 == 0) {
+      return 2 * binary_gcd_rec(x / 2, y / 2);
+    }
+    else {
+      return binary_gcd_rec(x / 2, y);
+    }
+  }
+  else {
+    if(y % 2 == 0) {
+      return binary_gcd_rec(x, y / 2);
+    }
+    else if(y >= x) {
+      return binary_gcd_rec(x, (y-x) / 2);
+    }
+    else {
+      return binary_gcd_rec((x-y) / 2, y);
+    }
+  }
 }
 
+/*
 unsigned int binary_gcd_itr(unsigned int x, unsigned int y){
 }
 */
