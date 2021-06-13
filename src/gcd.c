@@ -7,7 +7,6 @@ unsigned int Euclidean_gcd_rec(unsigned int x, unsigned int y){
   return Euclidean_gcd_rec ( y % x , x );
 }
 
-/*
 unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
   while(x != 0){
     unsigned int z = x;
@@ -17,6 +16,7 @@ unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
   return y;
 }
 
+/*
 unsigned int binary_gcd_rec(unsigned int x, unsigned int y){
 }
 
