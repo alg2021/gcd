@@ -12,7 +12,7 @@ unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
   while(x != 0){
     unsigned int z = x;
     x = y % x;
-    y = z 
+    y = z; 
   }
   return y;
 }
