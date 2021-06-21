@@ -3,15 +3,18 @@
 const int n = 1000;
 
 unsigned int Euclidean_gcd_rec(unsigned int x, unsigned int y){
-  while(x != 0){
+  if (x == 0) return y;
+  return Euclidean_gcd_rec(y % x, x);
+}
+
+unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
+  while (x != 0){
     unsigned int z = x;
-     x = y % x;
-     y = z;
+    x = y % x;
+    y = z;
   }
   return y;
 }
-
-
 /*
 unsigned int Euclidean_gcd_itr(unsigned int x, unsigned int y){
 }
